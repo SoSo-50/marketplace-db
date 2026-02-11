@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دیجی‌مارکت | تجربه خرید مدرن</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; background-color: #f3f4f6; }
+        .hidden { display: none !important; }
+        .active-tab { color: #4f46e5; border-bottom: 2px solid #4f46e5; background-color: rgba(79, 70, 229, 0.05); }
+        /* استایل جدید برای دکمه‌های دسته‌بندی فعال */
+        .cat-btn-active { background-color: #4f46e5 !important; color: white !important; border-color: #4f46e5 !important; }
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
+    </style>
+</head>
+<body class="text-gray-800 flex flex-col min-h-screen">
+
+    <div id="appContainer" class="flex-grow flex flex-col">
+        <!-- Navbar Modern -->
+        <nav class="bg-white shadow-md sticky top-0 z-50 border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo -->
+                    <div class="flex items-center gap-3 cursor-pointer group" onclick="switchTab('market')">
+                        <div class="bg-indigo-100 p-2 rounded-lg group-hover:bg-indigo-200 transition">
+                            <span class="text-2xl">🛍️</span>
+                        </div>
+                        <h1 class="text-xl font-black text-gray-800 tracking-tight group-hover:text-indigo-600 transition">دیجی‌مارکت</h1>
+                    </div>
+
+                    <!-- Desktop Menu -->
+                    <div id="navLinks" class="hidden md:flex space-x-reverse space-x-1 bg-gray-50 p-1 rounded-xl">
+                        <button onclick="switchTab('market')" id="tab-market" class="px-4 py-2 rounded-lg text-sm font-bold text-gray-600 transition hover:text-indigo-600 active-tab">فروشگاه</button>
+                        <button onclick="switchTab('cart')" id="tab-cart" class="px-4 py-2 rounded-lg text-sm font-bold text-gray-600 transition hover:text-indigo-600 relative">
+                            سبد خرید 
+                            <span id="cartCount" class="hidden absolute top-1 right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center shadow-sm animate-pulse">0</span>
+                        </button>
+                        <button onclick="switchTab('orders')" id="tab-orders" class="hidden px-4 py-2 rounded-lg text-sm font-bold text-gray-600 transition hover:text-indigo-600">سفارش‌ها</button>
+                        <button onclick="switchTab('profile')" id="tab-profile" class="hidden px-4 py-2 rounded-lg text-sm font-bold text-gray-600 transition hover:text-indigo-600">پروفایل</button>
+                        <button onclick="switchTab('seller')" id="tab-seller" class="hidden px-4 py-2 rounded-lg text-sm font-bold text-gray-600 transition hover:text-indigo-600">پنل فروش</button>
+                        <button onclick="switchTab('admin')" id="tab-admin" class="hidden px-4 py-2 rounded-lg text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 transition border border-rose-100">پنل مدیریت</button>
+                    </div>
+
+                    <!-- User Actions -->
+                    <div class="flex items-center gap-3">
+                        <div id="userInfo" class="hidden flex items-center gap-3 pl-2">
+                            <div class="text-right hidden sm:block">
+                                <p id="usernameDisplay" class="text-sm font-bold text-gray-800 leading-none mb-1"></p>
+                                <span id="roleBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 font-bold"></span>
+                            </div>
+                            <button onclick="logout()" class="text-gray-400 hover:text-red-500 transition p-2 bg-gray-50 hover:bg-red-50 rounded-lg" title="خروج">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                            </button>
+                        </div>
+                        <button id="authBtn" onclick="openAuthModal('login')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-indigo-200 transition text-sm font-bold flex items-center gap-2">
+                            <span>ورود / عضویت</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow">
+            
+            <!-- 1. Market Section -->
+            <div id="marketSection" class="fade-in space-y-6">
+                <!-- Search & Filter Bar -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-center justify-between sticky top-20 z-40">
+                    <div class="relative w-full md:max-w-md">
+                        <input type="text" id="searchInput" placeholder="جستجو در هزاران محصول..." class="w-full pr-11 pl-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-indigo-500 transition text-sm" onkeyup="if(event.key === 'Enter') loadProducts()">
+                        <span class="absolute right-3 top-3 text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        </span>
+                    </div>
+                    <!-- (Fix #2) Category Filters Container -->
+                    <div id="categoryFilters" class="flex gap-2 overflow-x-auto w-full md:w-auto pb-1 scrollbar-hide"></div>
+                </div>
+
+                <!-- Products Grid -->
+                <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6 pb-20"></div>
+            </div>
+
+            <!-- 2. Cart Section -->
+            <div id="cartSection" class="hidden fade-in">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="bg-indigo-100 p-2 rounded-lg text-indigo-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div>
+                    <h2 class="text-2xl font-black text-gray-800">سبد خرید شما</h2>
+                </div>
+                
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <!-- Cart Items -->
+                    <div class="lg:w-3/4 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-h-[300px]">
+                        <table class="w-full text-right border-collapse">
+                            <thead class="bg-gray-50 text-xs text-gray-500 font-bold border-b">
+                                <tr>
+                                    <th class="p-5">محصول</th>
+                                    <th class="p-5">قیمت واحد</th>
+                                    <th class="p-5">تعداد</th>
+                                    <th class="p-5">مجموع</th>
+                                    <th class="p-5 text-center">حذف</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cartTableBody" class="divide-y divide-gray-50 text-sm"></tbody>
+                        </table>
+                        <div id="emptyCartMsg" class="hidden flex flex-col items-center justify-center py-16 text-center">
+                            <div class="bg-gray-50 rounded-full p-6 mb-4">
+                                <span class="text-4xl grayscale opacity-50">🛒</span>
+                            </div>
+                            <p class="text-gray-500 font-bold text-lg">سبد خرید شما خالی است!</p>
+                            <button onclick="switchTab('market')" class="mt-4 text-indigo-600 font-bold hover:underline">بازگشت به فروشگاه</button>
+                        </div>
+                    </div>
+
+                    <!-- Summary Card -->
+                    <div class="lg:w-1/4">
+                        <div class="bg-white rounded-2xl shadow-lg p-6 sticky top-24 border border-indigo-50">
+                            <h3 class="font-bold text-lg mb-6 flex justify-between items-center text-gray-800">
+                                صورتحساب
+                                <span class="text-xs font-normal text-gray-400 bg-gray-100 px-2 py-1 rounded-md">محاسبه آنی</span>
+                            </h3>
+                            
+                            <div class="space-y-4 mb-6 text-sm">
+                                <div class="flex justify-between text-gray-500">
+                                    <span>مجموع اقلام</span>
+                                    <span class="font-bold text-gray-700"><span id="cartItemsCount">0</span> عدد</span>
+                                </div>
+                                <div class="flex justify-between text-gray-500">
+                                    <span>هزینه ارسال</span>
+                                    <span class="font-bold text-green-600">رایگان</span>
+                                </div>
+                                <div class="border-t border-dashed my-2"></div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-gray-800">مبلغ قابل پرداخت</span>
+                                    <span class="font-black text-xl text-indigo-600"><span id="cartTotalPrice">0</span> <span class="text-xs text-gray-400">تومان</span></span>
+                                </div>
+                            </div>
+
+                            <!-- (Fix #5) checkAuthAndProceed validates profile -->
+                            <button onclick="checkAuthAndProceed()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-indigo-200 flex justify-center items-center gap-2 group">
+                                ثبت سفارش
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:-translate-x-1 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                            </button>
+                            <p class="text-[10px] text-gray-400 text-center mt-3">تضمین امنیت پرداخت و اصالت کالا</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Orders Section -->
+            <div id="ordersSection" class="hidden fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-black text-gray-800">سفارش‌های من</h2>
+                    <button onclick="loadMyOrders()" class="text-sm text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition">بروزرسانی لیست</button>
+                </div>
+                
+                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <table class="w-full text-right">
+                        <thead class="bg-gray-50 text-sm text-gray-600 border-b">
+                            <tr>
+                                <th class="p-4">کد سفارش</th>
+                                <th class="p-4">تاریخ ثبت</th>
+                                <th class="p-4">مبلغ کل (تومان)</th>
+                                <th class="p-4">وضعیت</th>
+                                <th class="p-4 text-center">عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody" class="divide-y divide-gray-100 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. Profile Section (Fix #4: Editable Profile) -->
+            <div id="profileSection" class="hidden fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Left Column: User Card (Editable) -->
+                    <div class="md:col-span-1 space-y-6">
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 text-center relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+                            <div class="relative z-10 w-24 h-24 mx-auto bg-white rounded-full p-1 shadow-md -mt-2 mb-4">
+                                <div class="w-full h-full bg-gray-100 rounded-full flex items-center justify-center text-4xl">👤</div>
+                            </div>
+                            
+                            <h2 class="text-xl font-bold text-gray-800 mb-1" id="usernameDisplayTitle">...</h2>
+                            <p class="text-sm text-gray-500 mb-6" id="userUsernameDisplay">@username</p>
+                            
+                            <div class="space-y-3 text-right">
+                                <!-- Editable Inputs -->
+                                <div>
+                                    <label class="text-[10px] font-bold text-gray-400 block mb-1">نام</label>
+                                    <input type="text" id="editFirstName" class="w-full p-2 bg-gray-50 border rounded-lg text-sm text-center focus:border-indigo-500 outline-none transition">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-gray-400 block mb-1">نام خانوادگی</label>
+                                    <input type="text" id="editLastName" class="w-full p-2 bg-gray-50 border rounded-lg text-sm text-center focus:border-indigo-500 outline-none transition">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-gray-400 block mb-1">شماره موبایل *</label>
+                                    <input type="number" id="editPhone" class="w-full p-2 bg-gray-50 border rounded-lg text-sm text-center font-mono focus:border-indigo-500 outline-none transition dir-ltr" placeholder="09...">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-gray-400 block mb-1">ایمیل</label>
+                                    <input type="email" id="editEmail" class="w-full p-2 bg-gray-50 border rounded-lg text-sm text-center font-mono focus:border-indigo-500 outline-none transition dir-ltr">
+                                </div>
+                                
+                                <button onclick="updateProfileInfo()" class="w-full bg-indigo-600 text-white py-2 rounded-xl text-sm font-bold hover:bg-indigo-700 transition mt-4 shadow-md">
+                                    ذخیره تغییرات
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Addresses -->
+                    <div class="md:col-span-2">
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 min-h-[400px]">
+                            <div class="flex justify-between items-center mb-6 pb-4 border-b">
+                                <div>
+                                    <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+                                        <span class="bg-orange-100 text-orange-600 p-1.5 rounded-lg text-xl">📍</span>
+                                        دفترچه آدرس‌ها
+                                    </h3>
+                                    <p class="text-xs text-gray-400 mt-1">مدیریت آدرس‌های تحویل سفارش</p>
+                                </div>
+                            </div>
+
+                            <!-- New Address Input -->
+                            <div class="flex gap-2 mb-6">
+                                <input type="text" id="newAddressInputProfile" class="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition text-sm" placeholder="آدرس جدید را وارد کنید (استان، شهر، خیابان، پلاک)">
+                                <button onclick="saveNewAddress('newAddressInputProfile')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 rounded-xl font-bold transition shadow-md shadow-indigo-200">افزودن</button>
+                            </div>
+
+                            <!-- Address List -->
+                            <div id="profileAddressList" class="space-y-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Seller Section -->
+            <div id="sellerSection" class="hidden fade-in">
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
+                        <div class="absolute -right-10 -top-10 w-40 h-40 bg-white opacity-5 rounded-full"></div>
+                        <h2 class="text-2xl font-bold mb-2">پنل فروشندگان</h2>
+                        <p class="opacity-80 text-sm">محصولات خود را به فروشگاه اضافه کنید و مدیریت نمایید.</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">➕ افزودن محصول جدید</h3>
+                            <div class="space-y-4">
+                                <div><label class="text-xs font-bold text-gray-500">نام کالا</label><input type="text" id="pName" class="w-full mt-1 p-3 bg-gray-50 rounded-xl border-0 focus:ring-2 focus:ring-indigo-500"></div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div><label class="text-xs font-bold text-gray-500">قیمت (تومان)</label><input type="number" id="pPrice" class="w-full mt-1 p-3 bg-gray-50 rounded-xl border-0 focus:ring-2 focus:ring-indigo-500"></div>
+                                    <div><label class="text-xs font-bold text-gray-500">موجودی</label><input type="number" id="pStock" class="w-full mt-1 p-3 bg-gray-50 rounded-xl border-0 focus:ring-2 focus:ring-indigo-500"></div>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500">دسته‌بندی</label>
+                                    <select id="pCategoryId" class="w-full mt-1 p-3 bg-gray-50 rounded-xl border-0 focus:ring-2 focus:ring-indigo-500"></select>
+                                </div>
+                                <select id="pSellerId" class="hidden"></select>
+                                <button onclick="addProduct()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition shadow-lg mt-2">انتشار محصول</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+                            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                                <h3 class="font-bold text-gray-800">📋 محصولات فعال</h3>
+                                <button onclick="loadSellerProducts()" class="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded">بروزرسانی</button>
+                            </div>
+                            <div id="sellerProductsList" class="flex-1 overflow-y-auto pr-1 space-y-2 max-h-[350px]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Admin Section -->
+            <div id="adminSection" class="hidden fade-in space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div><p class="text-xs text-gray-500 font-bold">سفارشات کل</p><h4 class="text-2xl font-black text-gray-800" id="statTotalOrders">0</h4></div>
+                        <div class="bg-blue-50 text-blue-600 p-3 rounded-xl text-xl">📦</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div><p class="text-xs text-gray-500 font-bold">در انتظار ارسال</p><h4 class="text-2xl font-black text-yellow-600" id="statPendingOrders">0</h4></div>
+                        <div class="bg-yellow-50 text-yellow-600 p-3 rounded-xl text-xl">⏳</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div><p class="text-xs text-gray-500 font-bold">فروش کل (تومان)</p><h4 class="text-xl font-black text-green-600" id="statTotalSales">0</h4></div>
+                        <div class="bg-green-50 text-green-600 p-3 rounded-xl text-xl">💰</div>
+                    </div>
+                    <button onclick="loadAllOrdersForAdmin()" class="bg-indigo-600 text-white p-5 rounded-2xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition flex flex-col items-center justify-center gap-2">
+                        <span class="text-2xl">🔄</span>
+                        <span class="font-bold text-sm">بروزرسانی زنده</span>
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-5 border-b bg-gray-50 flex justify-between items-center">
+                        <h3 class="font-bold text-gray-800">لیست جامع سفارشات</h3>
+                        <div class="text-xs text-gray-400">آخرین وضعیت: همین الان</div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right">
+                            <thead class="bg-white text-xs font-bold uppercase text-gray-400 border-b">
+                                <tr>
+                                    <th class="p-5">شناسه</th>
+                                    <th class="p-5">خریدار</th>
+                                    <th class="p-5">مبلغ (تومان)</th>
+                                    <th class="p-5">وضعیت فعلی</th>
+                                    <th class="p-5 text-center">اقدام مدیریتی</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminOrdersTableBody" class="divide-y divide-gray-100 text-sm font-medium"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- (Fix #1) Footer with Admin Link -->
+        <footer class="bg-white border-t border-gray-100 mt-auto py-6">
+            <div class="max-w-7xl mx-auto px-4 text-center">
+                <p class="text-sm text-gray-500 mb-2">تمامی حقوق برای دیجی‌مارکت محفوظ است © ۱۴۰۳</p>
+                <a href="/admin/login" class="text-xs text-gray-300 hover:text-indigo-600 transition inline-flex items-center gap-1 border border-transparent hover:border-gray-200 px-3 py-1 rounded-full">
+                    🔐 ورود به پنل مدیریت
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modals -->
+    
+    <!-- Auth Modal -->
+    <div id="authModal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm transition-opacity" onclick="closeAuthModal()"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-2xl bg-white text-right shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                        <!-- Tabs -->
+                        <div class="flex bg-gray-100 p-1 rounded-xl mb-6">
+                            <button onclick="switchAuthMode('login')" id="tabBtnLogin" class="flex-1 py-2.5 rounded-lg text-sm font-bold transition shadow-sm bg-white text-gray-800">ورود</button>
+                            <button onclick="switchAuthMode('register')" id="tabBtnRegister" class="flex-1 py-2.5 rounded-lg text-sm font-bold transition text-gray-500 hover:text-gray-700">عضویت</button>
+                        </div>
+                        
+                        <div id="loginFormContainer" class="space-y-4">
+                            <div class="text-center mb-2">
+                                <h3 class="text-lg font-black text-gray-800">خوش آمدید! 👋</h3>
+                                <p class="text-xs text-gray-500">برای ادامه خرید وارد حساب خود شوید</p>
+                            </div>
+                            <input type="text" id="loginUser" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-indigo-500 outline-none transition text-left dir-ltr" placeholder="Username">
+                            <input type="password" id="loginPass" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-indigo-500 outline-none transition text-left dir-ltr" placeholder="Password">
+                            <button onclick="performLogin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-indigo-200">ورود به حساب</button>
+                            
+                            <div class="flex justify-center gap-2 mt-4 pt-4 border-t border-dashed">
+                                <span onclick="fillLogin('ali_ahmadi', '123456')" class="text-[10px] bg-gray-100 px-2 py-1 rounded cursor-pointer hover:bg-gray-200 text-gray-500">مشتری تستی</span>
+                                <span onclick="fillLogin('admin', 'admin')" class="text-[10px] bg-red-50 px-2 py-1 rounded cursor-pointer hover:bg-red-100 text-red-500">ادمین تستی</span>
+                            </div>
+                        </div>
+
+                        <div id="registerFormContainer" class="hidden space-y-3">
+                            <div class="flex gap-2">
+                                <input type="text" id="regName" class="w-1/2 px-3 py-3 bg-gray-50 border-0 rounded-xl text-sm" placeholder="نام">
+                                <input type="text" id="regFamily" class="w-1/2 px-3 py-3 bg-gray-50 border-0 rounded-xl text-sm" placeholder="نام خانوادگی">
+                            </div>
+                            <input type="text" id="regUser" class="w-full px-3 py-3 bg-gray-50 border-0 rounded-xl text-sm text-left dir-ltr" placeholder="Username">
+                            <input type="text" id="regPhone" class="w-full px-3 py-3 bg-gray-50 border-0 rounded-xl text-sm text-left dir-ltr" placeholder="0912...">
+                            <input type="email" id="regEmail" class="w-full px-3 py-3 bg-gray-50 border-0 rounded-xl text-sm text-left dir-ltr" placeholder="Email">
+                            <input type="password" id="regPass" class="w-full px-3 py-3 bg-gray-50 border-0 rounded-xl text-sm text-left dir-ltr" placeholder="Password">
+                            <button onclick="performRegister()" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition mt-2 shadow-lg shadow-green-200">ثبت نام رایگان</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Address Selection Modal -->
+    <div id="addressModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl m-4">
+            <h3 class="text-xl font-bold mb-1 text-gray-800">کجا ارسال شود؟ 🛵</h3>
+            <p class="text-xs text-gray-500 mb-6">آدرس تحویل سفارش خود را انتخاب کنید</p>
+            
+            <div class="space-y-2 mb-6 max-h-60 overflow-y-auto pr-1 custom-scrollbar" id="modalAddressList"></div>
+            
+            <div class="mb-6">
+                <div class="flex gap-2">
+                    <input type="text" id="modalNewAddrInput" class="flex-1 px-3 py-2 border rounded-xl text-sm focus:border-indigo-500 outline-none bg-gray-50" placeholder="افزودن آدرس جدید فوری...">
+                    <button onclick="saveNewAddress('modalNewAddrInput')" class="bg-gray-200 text-gray-700 px-3 rounded-xl text-sm hover:bg-gray-300 transition font-bold">+</button>
+                </div>
+            </div>
+            
+            <div class="flex gap-3">
+                <button onclick="closeAddressModal()" class="flex-1 bg-gray-100 text-gray-600 py-3 rounded-xl font-bold hover:bg-gray-200 transition">انصراف</button>
+                <button onclick="proceedToBank()" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">تایید و پرداخت</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bank Gateway Mockup (Fix #3: Centered properly) -->
+    <div id="bankGateway" class="fixed inset-0 bg-gray-100 z-[200] hidden flex-col font-sans w-full h-full">
+        <div class="bg-white shadow-md p-4 flex justify-between items-center border-b border-blue-500 border-b-4 w-full">
+            <div class="font-bold text-gray-700">درگاه پرداخت الکترونیک شاپرک</div>
+            <div class="text-sm bg-gray-100 px-3 py-1 rounded-full">زمان باقی‌مانده: 09:59</div>
+        </div>
+        <div class="flex-1 flex items-center justify-center p-4 w-full">
+            <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <span class="text-3xl">🏦</span>
+                    </div>
+                    <p class="text-gray-500 text-sm">مبلغ قابل پرداخت</p>
+                    <p class="font-black text-2xl text-blue-700 mt-1"><span id="bankAmount">0</span> ریال</p>
+                </div>
+                <form onsubmit="event.preventDefault(); submitPayment();" class="space-y-4">
+                    <div class="relative">
+                        <label class="block text-xs text-gray-400 mb-1">شماره کارت</label>
+                        <input type="text" class="w-full p-3 border rounded-lg bg-gray-50 text-center text-lg font-mono tracking-widest" value="6219-8610-1234-5678" readonly>
+                        <div class="absolute top-8 left-3 w-6 h-6 bg-red-500 rounded-full opacity-20"></div>
+                        <div class="absolute top-8 left-7 w-6 h-6 bg-blue-500 rounded-full opacity-20"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">رمز دوم</label>
+                            <input type="password" class="w-full p-3 border rounded-lg text-center font-mono" value="12345" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">CVV2</label>
+                            <input type="password" class="w-full p-3 border rounded-lg text-center font-mono" value="123" readonly>
+                        </div>
+                    </div>
+                    <div class="pt-4 flex gap-3">
+                        <button type="button" onclick="cancelPayment()" class="w-1/3 bg-red-50 text-red-600 py-3 rounded-xl font-bold border border-red-100 hover:bg-red-100 transition">انصراف</button>
+                        <button type="submit" class="w-2/3 bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-bold shadow-lg shadow-green-200 transition">پرداخت نهایی</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logic Script -->
+    <script>
+        const API_URL = '/api';
+        let token = localStorage.getItem('access_token');
+        let currentUser = JSON.parse(localStorage.getItem('user_info') || '{}');
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        let selectedAddress = '';
+        let currentCategory = null;
+
+        window.onload = () => { if (token) initLoggedIn(); else initGuest(); };
+
+        // --- Core Functions ---
+        function initGuest() { 
+            document.getElementById('navLinks').classList.remove('hidden'); 
+            ['tab-orders', 'tab-profile', 'tab-seller', 'tab-admin'].forEach(id => document.getElementById(id).classList.add('hidden')); 
+            document.getElementById('userInfo').classList.add('hidden'); 
+            document.getElementById('authBtn').classList.remove('hidden'); 
+            updateCartBadge(); 
+            loadCategories(); 
+            loadProducts(); 
+            switchTab('market'); 
+        }
+
+        function initLoggedIn() { 
+            document.getElementById('userInfo').classList.remove('hidden'); 
+            document.getElementById('authBtn').classList.add('hidden'); 
+            document.getElementById('navLinks').classList.remove('hidden'); 
+            
+            // Update Profile UI
+            const displayName = currentUser.first_name ? `${currentUser.first_name} ${currentUser.last_name}` : currentUser.username;
+            document.getElementById('usernameDisplay').innerText = displayName;
+            document.getElementById('usernameDisplayTitle').innerText = displayName;
+            document.getElementById('userUsernameDisplay').innerText = `@${currentUser.username}`;
+            
+            // Pre-fill Edit Inputs (Fix #4)
+            document.getElementById('editFirstName').value = currentUser.first_name || '';
+            document.getElementById('editLastName').value = currentUser.last_name || '';
+            document.getElementById('editPhone').value = currentUser.phone || '';
+            document.getElementById('editEmail').value = currentUser.email || '';
+
+            document.getElementById('tab-orders').classList.remove('hidden'); 
+            document.getElementById('tab-profile').classList.remove('hidden'); 
+            loadProfileAddresses(); 
+            
+            const isAdmin = currentUser.role === 'admin'; 
+            if (isAdmin) { 
+                document.getElementById('tab-seller').classList.remove('hidden'); 
+                document.getElementById('tab-admin').classList.remove('hidden'); 
+                document.getElementById('roleBadge').innerText = 'مدیر سیستم'; 
+                document.getElementById('roleBadge').className = "text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-600 font-bold";
+            } else { 
+                document.getElementById('roleBadge').innerText = 'کاربر عادی'; 
+                document.getElementById('roleBadge').className = "text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 font-bold";
+            } 
+            
+            updateCartBadge(); 
+            loadCategories(); 
+            loadProducts(); 
+            switchTab('market'); 
+            if(isAdmin) { loadSellersForDropdown(); loadCategoriesForProductDropdown(); loadSellerProducts(); } 
+        }
+
+        function switchTab(tab) { 
+            ['market', 'cart', 'orders', 'profile', 'seller', 'admin'].forEach(t => { 
+                document.getElementById(`${t}Section`).classList.add('hidden'); 
+                const btn = document.getElementById(`tab-${t}`); 
+                if(btn) {
+                    btn.classList.remove('active-tab', 'text-indigo-600');
+                    btn.classList.add('text-gray-600');
+                }
+            }); 
+            
+            document.getElementById(`${tab}Section`).classList.remove('hidden'); 
+            const activeBtn = document.getElementById(`tab-${tab}`); 
+            if(activeBtn) {
+                activeBtn.classList.add('active-tab', 'text-indigo-600');
+                activeBtn.classList.remove('text-gray-600');
+            }
+            
+            if(tab === 'cart') renderCart(); 
+            if(tab === 'orders') loadMyOrders(); 
+            if(tab === 'admin') loadAllOrdersForAdmin(); 
+            if(tab === 'seller') loadSellerProducts(); 
+            if(tab === 'profile') loadProfileAddresses(); 
+        }
+
+        // --- Address System ---
+        function getAddressKey() { return `addresses_${currentUser.id || 'guest'}`; }
+        function getSavedAddresses() { return JSON.parse(localStorage.getItem(getAddressKey()) || '[]'); }
+        function saveAddressList(list) { localStorage.setItem(getAddressKey(), JSON.stringify(list)); }
+
+        function renderAddressItem(addr, type = 'profile') {
+            const isModal = type === 'modal';
+            const deleteBtn = `<button onclick="deleteAddress('${addr}')" class="text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition" title="حذف"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>`;
+            const radio = isModal ? `<input type="radio" name="selectedAddr" value="${addr}" class="ml-2 w-5 h-5 text-indigo-600 accent-indigo-600">` : `<div class="bg-gray-200 p-2 rounded-full text-gray-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg></div>`;
+            
+            return `
+                <div class="bg-white p-4 rounded-xl border border-gray-100 flex justify-between items-center shadow-sm hover:shadow-md transition group">
+                    <label class="flex items-center cursor-pointer flex-1 gap-3 overflow-hidden">
+                        ${radio}
+                        <span class="text-sm text-gray-700 truncate font-medium group-hover:text-indigo-700 transition">${addr}</span>
+                    </label>
+                    ${deleteBtn}
+                </div>
+            `;
+        }
+
+        function loadProfileAddresses() {
+            const list = document.getElementById('profileAddressList');
+            const addrs = getSavedAddresses();
+            list.innerHTML = addrs.length ? addrs.map(a => renderAddressItem(a, 'profile')).join('') : '<div class="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300"><p class="text-gray-400 text-sm">هیچ آدرسی ثبت نشده است</p></div>';
+        }
+
+        function loadModalAddresses() {
+            const list = document.getElementById('modalAddressList');
+            const addrs = getSavedAddresses();
+            list.innerHTML = addrs.length ? addrs.map((a, i) => {
+                const checked = i === 0 ? 'checked' : '';
+                return `
+                <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 flex items-center mb-2 hover:bg-indigo-50 hover:border-indigo-200 transition cursor-pointer">
+                    <label class="flex items-center w-full cursor-pointer gap-3">
+                        <input type="radio" name="selectedAddr" value="${a}" class="w-4 h-4 accent-indigo-600" ${checked}>
+                        <span class="text-sm text-gray-700 truncate">${a}</span>
+                    </label>
+                </div>`;
+            }).join('') : '<p class="text-center text-red-500 text-sm font-bold py-4">لطفا یک آدرس اضافه کنید</p>';
+        }
+
+        function saveNewAddress(inputId) { 
+            const inp = document.getElementById(inputId);
+            const val = inp.value.trim();
+            if(!val) return Swal.fire({toast:true, position:'top-end', icon:'warning', title:'آدرس خالی است'});
+            
+            const addrs = getSavedAddresses();
+            addrs.push(val);
+            saveAddressList(addrs);
+            inp.value = '';
+            
+            loadProfileAddresses();
+            if(!document.getElementById('addressModal').classList.contains('hidden')) loadModalAddresses();
+            Swal.fire({toast:true, position:'top-end', icon:'success', title:'آدرس ذخیره شد', showConfirmButton:false, timer:1500});
+        }
+
+        function deleteAddress(addr) { 
+            let addrs = getSavedAddresses();
+            addrs = addrs.filter(a => a !== addr);
+            saveAddressList(addrs);
+            loadProfileAddresses();
+            if(!document.getElementById('addressModal').classList.contains('hidden')) loadModalAddresses();
+        }
+
+        // --- Market Logic ---
+        async function loadCategories() { 
+            try{ 
+                const res=await fetch(`${API_URL}/categories`); 
+                const cats=await res.json(); 
+                const c=document.getElementById('categoryFilters'); 
+                // Fix #2: Category Highlight Logic (All button)
+                c.innerHTML=`<button onclick="filterCategory(null, this)" class="cat-btn px-4 py-2 bg-gray-800 text-white rounded-xl text-xs font-bold shadow-md hover:bg-gray-900 transition flex-shrink-0 cat-btn-active">همه محصولات</button>`; 
+                cats.forEach(x=>c.innerHTML+=`<button onclick="filterCategory(${x.id}, this)" class="cat-btn px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-xl text-xs font-bold whitespace-nowrap hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 transition flex-shrink-0 shadow-sm">${x.name}</button>`); 
+            }catch(e){} 
+        }
+
+        function filterCategory(id, btnElement) { 
+            currentCategory=id; 
+            // Fix #2: Remove active class from all buttons, add to clicked
+            document.querySelectorAll('.cat-btn').forEach(b => {
+                b.classList.remove('cat-btn-active', 'bg-gray-800', 'text-white');
+                b.classList.add('bg-white', 'text-gray-600', 'border');
+            });
+            if(btnElement) {
+                btnElement.classList.add('cat-btn-active', 'bg-gray-800', 'text-white');
+                btnElement.classList.remove('bg-white', 'text-gray-600', 'border');
+            }
+            loadProducts(); 
+        }
+
+        async function loadProducts() { 
+            const s=document.getElementById('searchInput').value; 
+            let url=`${API_URL}/products?page=1&per_page=50`; 
+            if(s) url+=`&search=${s}`; 
+            if(currentCategory) url+=`&category_id=${currentCategory}`; 
+            
+            const g=document.getElementById('productsGrid'); 
+            g.innerHTML = '<div class="col-span-full text-center py-20"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div></div>';
+            
+            const res=await fetch(url); 
+            const data=await res.json(); 
+            g.innerHTML=''; 
+            
+            if(data.products.length === 0) { 
+                g.innerHTML = '<div class="col-span-full text-center py-20 opacity-50"><span class="text-6xl block mb-2">🔍</span><p>محصولی یافت نشد</p></div>'; 
+                return; 
+            } 
+            
+            data.products.forEach(p=>{ 
+                g.innerHTML+=`
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full group">
+                    <div class="bg-gray-50 rounded-xl aspect-square mb-4 flex items-center justify-center text-6xl group-hover:scale-105 transition duration-500 relative overflow-hidden">
+                        📦
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition"></div>
+                    </div>
+                    <h3 class="font-bold text-gray-800 truncate mb-1 text-sm">${p.name}</h3>
+                    <p class="text-xs text-gray-500 mb-4 line-clamp-2 h-8 leading-4">${p.description || 'توضیحات محصول...'}</p>
+                    <div class="mt-auto flex items-end justify-between border-t border-dashed pt-3">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] text-gray-400">قیمت نهایی</span>
+                            <span class="text-indigo-600 font-black text-lg">${parseInt(p.price).toLocaleString()} <span class="text-[10px] font-normal">ت</span></span>
+                        </div>
+                        <button onclick="addToCart(${p.id},'${p.name}',${p.price})" class="bg-gray-900 text-white w-8 h-8 rounded-lg flex items-center justify-center hover:bg-indigo-600 transition shadow-lg shadow-gray-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                        </button>
+                    </div>
+                </div>`; 
+            }); 
+        }
+
+        // --- Cart Logic ---
+        function addToCart(id,n,p){ 
+            const ex=cart.find(i=>i.id===id); 
+            if(ex) ex.qty++; else cart.push({id,name:n,price:p,qty:1}); 
+            localStorage.setItem('cart',JSON.stringify(cart)); 
+            updateCartBadge(); 
+            Swal.fire({toast:true, position:'bottom-start', icon:'success', title:`${n} اضافه شد`, showConfirmButton:false, timer:1500}); 
+        }
+
+        function removeFromCart(id){ cart=cart.filter(i=>i.id!==id); localStorage.setItem('cart',JSON.stringify(cart)); renderCart(); updateCartBadge(); }
+
+        function updateCartBadge(){ 
+            const c=cart.reduce((a,b)=>a+b.qty,0); 
+            const el=document.getElementById('cartCount'); 
+            el.innerText=c; 
+            if(c>0) el.classList.remove('hidden'); else el.classList.add('hidden'); 
+        }
+
+        function renderCart(){ 
+            const t=document.getElementById('cartTableBody'); 
+            t.innerHTML=''; 
+            let tot=0; 
+            let count=0;
+            if(cart.length===0){ 
+                document.getElementById('emptyCartMsg').classList.remove('hidden'); 
+                document.getElementById('cartTotalPrice').innerText=0; 
+                document.getElementById('cartItemsCount').innerText=0;
+                return; 
+            } 
+            document.getElementById('emptyCartMsg').classList.add('hidden'); 
+            
+            cart.forEach(i=>{ 
+                tot+=i.price*i.qty; 
+                count+=i.qty;
+                t.innerHTML+=`
+                <tr class="group hover:bg-gray-50 transition">
+                    <td class="p-5 font-bold text-gray-700 border-b border-gray-50 flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">📦</div>
+                        ${i.name}
+                    </td>
+                    <td class="p-5 border-b border-gray-50 text-gray-500">${i.price.toLocaleString()}</td>
+                    <td class="p-5 border-b border-gray-50"><span class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-lg font-bold text-xs shadow-sm">${i.qty}</span></td>
+                    <td class="p-5 border-b border-gray-50 font-bold text-gray-800">${(i.price*i.qty).toLocaleString()}</td>
+                    <td class="p-5 border-b border-gray-50 text-center">
+                        <button onclick="removeFromCart(${i.id})" class="text-gray-400 hover:text-red-500 transition p-2 hover:bg-red-50 rounded-full">🗑️</button>
+                    </td>
+                </tr>`; 
+            }); 
+            document.getElementById('cartTotalPrice').innerText=tot.toLocaleString(); 
+            document.getElementById('cartItemsCount').innerText=count;
+        }
+
+        // --- Auth Logic ---
+        // Fix #3: Profile Completion Check
+        function checkAuthAndProceed() { 
+            if (!token) return openAuthModal('login'); 
+            
+            // Check if profile is complete (Name & Phone)
+            if (!currentUser.phone || !currentUser.first_name || !currentUser.last_name) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'تکمیل اطلاعات',
+                    text: 'برای ارسال سفارش، لطفا نام و شماره تماس خود را در پروفایل کامل کنید.',
+                    confirmButtonText: 'تکمیل پروفایل',
+                    confirmButtonColor: '#4f46e5'
+                }).then((result) => {
+                    if (result.isConfirmed) switchTab('profile');
+                });
+                return;
+            }
+            
+            showAddressModal(); 
+        }
+
+        function openAuthModal(mode) { 
+            document.getElementById('authModal').classList.remove('hidden'); 
+            switchAuthMode(mode); 
+        }
+        function closeAuthModal() { document.getElementById('authModal').classList.add('hidden'); }
+        function switchAuthMode(mode) { 
+            const loginBtn = document.getElementById('tabBtnLogin');
+            const regBtn = document.getElementById('tabBtnRegister');
+            
+            if (mode === 'login') { 
+                document.getElementById('loginFormContainer').classList.remove('hidden'); 
+                document.getElementById('registerFormContainer').classList.add('hidden'); 
+                loginBtn.className = "flex-1 py-2.5 rounded-lg text-sm font-bold transition shadow-sm bg-white text-gray-800";
+                regBtn.className = "flex-1 py-2.5 rounded-lg text-sm font-bold transition text-gray-500 hover:text-gray-700";
+            } else { 
+                document.getElementById('loginFormContainer').classList.add('hidden'); 
+                document.getElementById('registerFormContainer').classList.remove('hidden'); 
+                regBtn.className = "flex-1 py-2.5 rounded-lg text-sm font-bold transition shadow-sm bg-white text-gray-800";
+                loginBtn.className = "flex-1 py-2.5 rounded-lg text-sm font-bold transition text-gray-500 hover:text-gray-700";
+            } 
+        }
+        function fillLogin(u,p) { document.getElementById('loginUser').value=u; document.getElementById('loginPass').value=p; }
+        
+        async function performLogin() { 
+            const u=document.getElementById('loginUser').value; const p=document.getElementById('loginPass').value; 
+            try { 
+                const res=await fetch(`${API_URL}/auth/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})}); 
+                const data=await res.json(); 
+                if(res.ok){ 
+                    token=data.access_token; currentUser=data.user; 
+                    localStorage.setItem('access_token',token); localStorage.setItem('user_info',JSON.stringify(data.user)); 
+                    closeAuthModal(); initLoggedIn(); 
+                    Swal.fire({icon:'success',title:'ورود موفق',text:'خوش آمدید',timer:1500,showConfirmButton:false}); 
+                    if(cart.length>0) setTimeout(()=>showAddressModal(),1000); 
+                } else Swal.fire('خطا',data.error,'error'); 
+            } catch(e){ Swal.fire('خطا','مشکل ارتباط با سرور','error'); } 
+        }
+        
+        async function performRegister() { 
+            const payload={first_name:document.getElementById('regName').value,last_name:document.getElementById('regFamily').value,username:document.getElementById('regUser').value,phone:document.getElementById('regPhone').value,email:document.getElementById('regEmail').value,password:document.getElementById('regPass').value}; 
+            try{ 
+                const res=await fetch(`${API_URL}/auth/register`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); 
+                if(res.ok){ 
+                    Swal.fire('تبریک','حساب کاربری ساخته شد','success'); 
+                    switchAuthMode('login'); document.getElementById('loginUser').value=payload.username; document.getElementById('loginPass').value=payload.password; 
+                } else Swal.fire('خطا','مشکل در ثبت نام','error'); 
+            }catch(e){} 
+        }
+        
+        // Fix #4: Profile Update Logic
+        async function updateProfileInfo() {
+            const first_name = document.getElementById('editFirstName').value;
+            const last_name = document.getElementById('editLastName').value;
+            const phone = document.getElementById('editPhone').value;
+            const email = document.getElementById('editEmail').value;
+
+            if(!phone) return Swal.fire('خطا', 'شماره موبایل برای تماس ضروری است', 'warning');
+
+            try {
+                const res = await fetch(`${API_URL}/auth/profile`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+                    body: JSON.stringify({first_name, last_name, phone, email})
+                });
+                
+                const data = await res.json();
+                if(res.ok) {
+                    currentUser = data.user;
+                    localStorage.setItem('user_info', JSON.stringify(currentUser));
+                    document.getElementById('usernameDisplay').innerText = `${currentUser.first_name} ${currentUser.last_name}`;
+                    document.getElementById('usernameDisplayTitle').innerText = `${currentUser.first_name} ${currentUser.last_name}`;
+                    Swal.fire({toast:true, position:'bottom-end', icon:'success', title: 'اطلاعات ذخیره شد', showConfirmButton: false, timer: 2000});
+                } else {
+                    Swal.fire('خطا', data.error || 'مشکل در ذخیره‌سازی', 'error');
+                }
+            } catch(e) { Swal.fire('خطا', 'مشکل شبکه', 'error'); }
+        }
+
+        function logout() { localStorage.clear(); location.reload(); }
+
+        // --- Payment Flow ---
+        function showAddressModal(){ if(cart.length===0) return Swal.fire('خطا','سبد خرید خالی است','warning'); document.getElementById('addressModal').classList.remove('hidden'); document.getElementById('addressModal').classList.add('flex'); loadModalAddresses(); }
+        function closeAddressModal(){ document.getElementById('addressModal').classList.add('hidden'); document.getElementById('addressModal').classList.remove('flex'); }
+        
+        function proceedToBank(){ 
+            const n=document.getElementById('modalNewAddrInput').value.trim(); 
+            if(n){ 
+                const a=getSavedAddresses(); a.push(n); saveAddressList(a); selectedAddress=n; loadProfileAddresses(); 
+            } else { 
+                const r=document.querySelector('input[name="selectedAddr"]:checked'); 
+                if(r) selectedAddress=r.value; else return Swal.fire('توجه','لطفا آدرس را انتخاب کنید','warning'); 
+            } 
+            closeAddressModal(); 
+            // Fix #5: Center the gateway
+            document.getElementById('appContainer').classList.add('hidden'); 
+            document.getElementById('bankGateway').classList.remove('hidden'); 
+            document.getElementById('bankGateway').classList.add('flex'); 
+            document.getElementById('bankAmount').innerText=cart.reduce((a,b)=>a+(b.price*b.qty),0).toLocaleString(); 
+        }
+        
+        function cancelPayment(){ document.getElementById('bankGateway').classList.add('hidden'); document.getElementById('bankGateway').classList.remove('flex'); document.getElementById('appContainer').classList.remove('hidden'); }
+        
+        async function submitPayment(){ 
+            const items=cart.map(i=>({product_id:i.id,quantity:i.qty})); 
+            const total=cart.reduce((a,b)=>a+(b.price*b.qty),0); 
+            try { 
+                const res=await fetch(`${API_URL}/orders`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({items,shipping_address:selectedAddress})}); 
+                if(res.ok){ 
+                    const d=await res.json(); 
+                    await fetch(`${API_URL}/payments`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({order_id:d.order_id,amount:total,transaction_no:`TRX-${Date.now()}`,method:'Shaparak',status:'Successful'})}); 
+                    await fetch(`${API_URL}/orders/${d.order_id}/status`,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({status:'Processing'})}); 
+                    cart=[]; localStorage.setItem('cart','[]'); updateCartBadge(); cancelPayment(); 
+                    Swal.fire({icon:'success', title:'پرداخت موفق', text:`کد پیگیری: ${Date.now().toString().slice(-6)}`, confirmButtonText: 'مشاهده سفارش'}).then(()=>{ switchTab('orders'); });
+                } else { Swal.fire('خطا', 'ثبت سفارش انجام نشد', 'error'); } 
+            } catch(e) { Swal.fire('خطا', 'ارتباط با سرور قطع شد', 'error'); } 
+        }
+
+        // --- Order & Admin Logic ---
+        async function loadMyOrders(){ 
+            const t=document.getElementById('ordersTableBody'); 
+            t.innerHTML = '<tr><td colspan="5" class="text-center py-8"><div class="animate-spin h-6 w-6 border-2 border-indigo-600 rounded-full border-t-transparent mx-auto"></div></td></tr>';
+            
+            const res=await fetch(`${API_URL}/orders`,{headers:{'Authorization':`Bearer ${token}`}}); 
+            const d=await res.json(); 
+            t.innerHTML=''; 
+            
+            if(d.length === 0) { t.innerHTML = '<tr><td colspan="5" class="text-center p-8 text-gray-400">هنوز سفارشی ثبت نکرده‌اید.</td></tr>'; return; } 
+            
+            d.forEach(o=>{ 
+                let badge = 'bg-gray-100 text-gray-600';
+                let cancelBtn = '<span class="text-gray-300 text-xs">-</span>';
+                
+                if(o.status==='Processing') { badge='bg-yellow-100 text-yellow-700'; cancelBtn=`<button onclick="cancelMyOrder(${o.id})" class="text-red-500 hover:bg-red-50 px-3 py-1 rounded text-xs transition">لغو سفارش</button>`; }
+                if(o.status==='Pending') { badge='bg-orange-100 text-orange-700'; cancelBtn=`<button onclick="cancelMyOrder(${o.id})" class="text-red-500 hover:bg-red-50 px-3 py-1 rounded text-xs transition">لغو سفارش</button>`; }
+                if(o.status==='Shipped') badge='bg-blue-100 text-blue-700'; 
+                if(o.status==='Delivered') badge='bg-green-100 text-green-700'; 
+                if(o.status==='Cancelled') badge='bg-red-100 text-red-700'; 
+                
+                t.innerHTML+=`
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="p-4 border-b border-gray-50 font-mono text-gray-500 text-xs">#${o.id}</td>
+                    <td class="p-4 border-b border-gray-50 text-gray-700">${o.order_date.split('T')[0]}</td>
+                    <td class="p-4 border-b border-gray-50 font-bold text-gray-800">${parseInt(o.total_amount).toLocaleString()}</td>
+                    <td class="p-4 border-b border-gray-50"><span class="px-3 py-1 rounded-full text-xs font-bold ${badge}">${translateStatus(o.status)}</span></td>
+                    <td class="p-4 border-b border-gray-50 text-center">${cancelBtn}</td>
+                </tr>`; 
+            }); 
+        }
+
+        async function cancelMyOrder(orderId) { 
+            const conf = await Swal.fire({title:'لغو سفارش', text:'آیا از لغو این سفارش اطمینان دارید؟', icon:'warning', showCancelButton:true, confirmButtonText:'بله، لغو شود', cancelButtonText:'خیر'}); 
+            if(conf.isConfirmed) { 
+                try { 
+                    const res = await fetch(`${API_URL}/orders/${orderId}/cancel`, {method:'PUT', headers:{'Authorization':`Bearer ${token}`}}); 
+                    if(res.ok) { Swal.fire('انجام شد', 'سفارش شما لغو گردید', 'success'); loadMyOrders(); } 
+                    else { const d=await res.json(); Swal.fire('خطا', d.error, 'error'); } 
+                } catch(e) { Swal.fire('خطا', 'مشکل شبکه', 'error'); } 
+            } 
+        }
+
+        async function loadAllOrdersForAdmin(){ 
+            const t=document.getElementById('adminOrdersTableBody'); 
+            t.innerHTML='<tr><td colspan="5" class="text-center p-8">در حال بارگذاری...</td></tr>';
+            
+            const res=await fetch(`${API_URL}/admin/orders`,{headers:{'Authorization':`Bearer ${token}`}}); 
+            const d=await res.json(); 
+            
+            // Stats Calculation
+            const totalOrders = d.length;
+            const pendingOrders = d.filter(x => x.status === 'Processing' || x.status === 'Pending').length;
+            const totalSales = d.filter(x => x.status !== 'Cancelled').reduce((a,b) => a + parseInt(b.total_amount), 0);
+            
+            document.getElementById('statTotalOrders').innerText = totalOrders;
+            document.getElementById('statPendingOrders').innerText = pendingOrders;
+            document.getElementById('statTotalSales').innerText = totalSales.toLocaleString();
+
+            t.innerHTML=''; 
+            d.forEach(o=>{ 
+                const userDisplay = o.user_name || o.user_full_name || `User ${o.user_id}`;
+                let badge = 'bg-gray-100 text-gray-600';
+                if(o.status==='Processing') badge='bg-yellow-100 text-yellow-700';
+                if(o.status==='Shipped') badge='bg-blue-100 text-blue-700';
+                if(o.status==='Delivered') badge='bg-green-100 text-green-700';
+                if(o.status==='Cancelled') badge='bg-red-100 text-red-700';
+
+                t.innerHTML+=`
+                <tr class="hover:bg-gray-50 transition border-b border-gray-50">
+                    <td class="p-5 font-mono text-xs text-gray-400">#${o.id}</td>
+                    <td class="p-5 font-bold text-gray-700 text-sm">${userDisplay}</td>
+                    <td class="p-5 text-gray-600">${parseInt(o.total_amount).toLocaleString()}</td>
+                    <td class="p-5"><span class="px-3 py-1 rounded-full text-xs font-bold ${badge}">${translateStatus(o.status)}</span></td>
+                    <td class="p-5 text-center flex justify-center gap-2">
+                         <button onclick="upSt(${o.id},'Shipped')" class="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white p-2 rounded-lg transition text-xs flex items-center gap-1" title="ارسال شد">🚚 <span class="hidden md:inline">ارسال</span></button> 
+                         <button onclick="upSt(${o.id},'Delivered')" class="bg-green-50 text-green-600 hover:bg-green-600 hover:text-white p-2 rounded-lg transition text-xs flex items-center gap-1" title="تحویل شد">✅ <span class="hidden md:inline">تحویل</span></button>
+                         <button onclick="upSt(${o.id},'Cancelled')" class="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white p-2 rounded-lg transition text-xs flex items-center gap-1" title="لغو">🚫 <span class="hidden md:inline">لغو</span></button>
+                    </td>
+                </tr>`; 
+            }); 
+        }
+
+        async function upSt(id,s){ 
+            if(s === 'Cancelled') { 
+                const conf = await Swal.fire({title:'لغو سیستمی', text:'آیا مطمئن هستید؟ این عمل قابل بازگشت نیست.', icon:'warning', showCancelButton:true}); 
+                if(!conf.isConfirmed) return; 
+            } 
+            await fetch(`${API_URL}/orders/${id}/status`,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({status:s})}); 
+            loadAllOrdersForAdmin(); 
+            Swal.fire({toast:true, position:'bottom-end', icon:'success', title:'وضعیت آپدیت شد', showConfirmButton:false, timer:1500});
+        }
+
+        // --- Seller Logic ---
+        async function loadSellersForDropdown(){ const res=await fetch(`${API_URL}/sellers`); const d=await res.json(); const s=document.getElementById('pSellerId'); s.innerHTML=''; d.forEach(x=>s.innerHTML+=`<option value="${x.id}">${x.store_name}</option>`); }
+        async function loadCategoriesForProductDropdown(){ const res=await fetch(`${API_URL}/categories`); const d=await res.json(); const s=document.getElementById('pCategoryId'); s.innerHTML='<option disabled selected>انتخاب کنید...</option>'; d.forEach(x=>s.innerHTML+=`<option value="${x.id}">${x.name}</option>`); }
+        async function addProduct() { 
+            const n=document.getElementById('pName').value.trim(); const p=document.getElementById('pPrice').value; const s=document.getElementById('pStock').value; const c=document.getElementById('pCategoryId').value; const sid=document.getElementById('pSellerId').value||1; 
+            if(!n || !p || !s || !c) return Swal.fire('خطا', 'لطفا تمام فیلدها را پر کنید', 'warning');
+            try { 
+                const res = await fetch(`${API_URL}/products`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({name:n,price:p,stock:s,category_id:c,seller_id:sid})}); 
+                if(res.ok) { Swal.fire('موفق','محصول ثبت شد','success'); loadSellerProducts(); loadProducts(); document.getElementById('pName').value=''; } 
+                else { const err = await res.json(); Swal.fire('خطا', err.error, 'error'); } 
+            } catch(e){ Swal.fire('خطا','ارتباط با سرور','error'); } 
+        }
+        async function loadSellerProducts() {
+            const container = document.getElementById('sellerProductsList');
+            container.innerHTML = '<div class="text-center py-4 text-gray-400">...</div>';
+            const res = await fetch(`${API_URL}/products?per_page=100`);
+            const data = await res.json();
+            container.innerHTML = '';
+            if (data.products.length === 0) { container.innerHTML = '<p class="text-center text-gray-500 text-sm">محصولی ثبت نشده است.</p>'; return; }
+            data.products.forEach(p => {
+                container.innerHTML += `
+                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 flex justify-between items-center group hover:bg-white hover:shadow-md transition">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-xl border shadow-sm">📦</div>
+                            <div><h4 class="font-bold text-gray-800 text-sm">${p.name}</h4><div class="text-[10px] text-gray-500">${parseInt(p.price).toLocaleString()} تومان</div></div>
+                        </div>
+                        <button onclick="deleteProduct(${p.id})" class="text-gray-300 hover:text-red-500 p-2 transition" title="حذف">🗑️</button>
+                    </div>`;
+            });
+        }
+        async function deleteProduct(id) {
+            const conf = await Swal.fire({title:'حذف محصول',text:'مطمئن هستید؟',icon:'warning',showCancelButton:true,confirmButtonText:'بله',cancelButtonText:'خیر'});
+            if(conf.isConfirmed) {
+                const res = await fetch(`${API_URL}/products/${id}`, { method:'DELETE', headers:{'Authorization':`Bearer ${token}`} });
+                if(res.ok) { Swal.fire('حذف شد','','success'); loadSellerProducts(); loadProducts(); } 
+                else { const err = await res.json(); Swal.fire('خطا', err.error || 'این محصول سفارش داده شده و حذف نمی‌شود', 'error'); }
+            }
+        }
+
+        function translateStatus(s) {
+            const map = { 'Pending': 'در انتظار تایید', 'Processing': 'در حال پردازش', 'Shipped': 'ارسال شده', 'Delivered': 'تحویل شده', 'Cancelled': 'لغو شده' };
+            return map[s] || s;
+        }
+    </script>
+</body>
+</html>

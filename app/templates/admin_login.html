@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورود مدیریت | دیجی‌مارکت</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>body { font-family: 'Vazirmatn', sans-serif; }</style>
+</head>
+<body class="bg-gray-900 flex items-center justify-center h-screen relative overflow-hidden">
+    
+    <!-- Background Elements -->
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+    <div class="absolute top-[-10%] right-[-10%] w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+
+    <div class="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-3xl shadow-2xl w-full max-w-sm relative z-10">
+        <div class="text-center mb-8">
+            <div class="bg-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg text-3xl">🔐</div>
+            <h1 class="text-2xl font-black text-white">پنل مدیریت</h1>
+            <p class="text-sm text-gray-400 mt-2">ورود به بخش نظارت فروشگاه</p>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-300 mb-1">نام کاربری</label>
+                <input type="text" id="adminUser" class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl focus:border-indigo-500 outline-none dir-ltr text-left text-white placeholder-gray-500 transition focus:bg-gray-800" placeholder="admin">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-300 mb-1">رمز عبور</label>
+                <input type="password" id="adminPass" class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl focus:border-indigo-500 outline-none dir-ltr text-left text-white placeholder-gray-500 transition focus:bg-gray-800" placeholder="••••••">
+            </div>
+            <button onclick="adminLogin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-indigo-900/50 mt-2">ورود امن</button>
+        </div>
+        <div class="mt-6 text-center">
+            <a href="/" class="text-xs text-gray-500 hover:text-white transition">بازگشت به فروشگاه</a>
+        </div>
+    </div>
+
+    <script>
+        async function adminLogin() {
+            const u = document.getElementById('adminUser').value;
+            const p = document.getElementById('adminPass').value;
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    if (data.user.role !== 'admin') {
+                        Swal.fire({icon: 'error', title: 'دسترسی غیرمجاز', text: 'این حساب کاربری ادمین نیست!', background: '#1f2937', color: '#fff'});
+                        return;
+                    }
+
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('user_info', JSON.stringify(data.user));
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'خوش آمدید',
+                        showConfirmButton: false,
+                        timer: 1500,
+                        background: '#1f2937', color: '#fff'
+                    }).then(() => {
+                        window.location.href = '/?tab=admin';
+                    });
+                } else {
+                    Swal.fire({icon: 'error', title: 'خطا', text: data.error, background: '#1f2937', color: '#fff'});
+                }
+            } catch (e) {
+                Swal.fire({icon: 'error', title: 'خطا', text: 'مشکل در ارتباط با سرور', background: '#1f2937', color: '#fff'});
+            }
+        }
+    </script>
+</body>
+</html>
